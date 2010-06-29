@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 #
-#  makeGenomicMapFile.py
+#  makeGenMapFile.py
 ###########################################################################
 #
 #  Purpose:

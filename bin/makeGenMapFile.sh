@@ -1,15 +1,16 @@
 #!/bin/sh
 #
-#  makeMGIMapFile.sh
+#  makeGenMapFile.sh
 ###########################################################################
 #
 #  Purpose:
 #
 #      This script is a wrapper around the process that
+#      creates the genetic map file.
 #
 #  Usage:
 #
-#      makeMGIMapFile.sh
+#      makeGenMapFile.sh
 #
 #  Env Vars:
 #
@@ -34,7 +35,7 @@
 #
 #      1) Source the configuration file to establish the environment.
 #      2) Establish the log file.
-#      3) Call makeMGIMapFile.py to create the MGD map file.
+#      3) Call makeGenMapFile.py to create the genetic map file.
 #
 #  Notes:  None
 #
@@ -65,13 +66,12 @@ LOG=${LOG_DIAG}
 #
 echo "" >> ${LOG}
 date >> ${LOG}
-echo "Create the MGI map file (makeMGIMapFile.sh)" | tee -a ${LOG}
-#./makeMGIMapFile.py 2>&1 >> ${LOG}
-./makeMGIMapFile.py
+echo "Create the genetic map file (makeGenMapFile.sh)" | tee -a ${LOG}
+./makeGenMapFile.py 2>&1 >> ${LOG}
 STAT=$?
 if [ ${STAT} -ne 0 ]
 then
-    echo "Error: Create the MGI map file (makeMGIMapFile.sh)" | tee -a ${LOG}
+    echo "Error: Create the genetic map file (makeGenMapFile.sh)" | tee -a ${LOG}
     exit 1
 fi
 
