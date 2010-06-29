@@ -11,7 +11,7 @@
 #
 #  Usage:
 #
-#      makeGenomicMapFile.py
+#      makeGenMapFile.py
 #
 #  Env Vars:
 #
@@ -118,7 +118,7 @@
 #
 #      1) Initialize variables.
 #      2) Open files.
-#      3) 
+#      3) Interpolate
 #      4) Create BCP files
 #      5) Load BCP files
 #      6) Close files.
@@ -171,7 +171,7 @@ I_MCM = 2	# male map coordinate
 I_ACM = 3	# sex-averaged map coordinate
 
 # the mit map
-# key = marker key
+# key = marker key (field 4)
 # value = acM (field 15)
 mitMap = {}
 
@@ -187,7 +187,7 @@ tableName = 'MRK_Offset'
 mapSource = 0
 
 #
-# delete existing map
+# delete existing map positions
 # where offset is -1 (syntenic) or >0 (positive offset)
 # and marker status is official/inferred (1,3)
 # 
@@ -214,7 +214,7 @@ TAB = '\t'
 # Purpose: Initialization
 # Returns: 1 if file does not exist or is not readable, else 0
 # Assumes: Nothing
-# Effects: Nothing
+# Effects: sets the global variables, file pointers, etc.
 # Throws: Nothing
 #
 def initialize():
@@ -281,7 +281,7 @@ def initialize():
 # Purpose: Open files.
 # Returns: 1 if file does not exist or is not readable, else 0
 # Assumes: Nothing
-# Effects: Nothing
+# Effects: opens the file pointers and loads the lookup tables
 # Throws: Nothing
 #
 def openFiles():
@@ -344,7 +344,8 @@ def openFiles():
     #
 
     #
-    # read in all of the DMit markers
+    # create a mitMarker lookup
+    # read in all of the DMit markers in the database
     # key = marker accession id
     # value = marker key
     #
@@ -393,6 +394,8 @@ def openFiles():
 	mitStatus = tokens[11]
 	acM = tokens[14]
 
+	# skip if status is not "good"
+
 	if mitStatus != "good":
             #print 'status != good ', markerID, mitStatus
 	    continue
@@ -421,7 +424,7 @@ def openFiles():
 # Purpose: Close files.
 # Returns: 1 if file does not exist or is not readable, else 0
 # Assumes: Nothing
-# Effects: Nothing
+# Effects: close file pointers
 # Throws: Nothing
 #
 def closeFiles():
@@ -447,7 +450,7 @@ def closeFiles():
 # Purpose: Performs a binary search of the SNP (by position)
 # Returns: the SNP interval containing the given position
 #    imax is an index within snpMap for a given chromosome
-#    The position argument (pos) is in the interval defined by the SNP 
+#    the position argument (pos) is in the interval defined by the SNP 
 #    at imax and the one at imaX+1.
 # Assumes: Nothing
 # Effects: Nothing
@@ -521,33 +524,35 @@ def convert(chr, pos, fromCoord = I_BP, toCoord = I_ACM):
 #
 # Purpose: Generate the map by interpolating
 #          the SNP map and the MGI map.
-# Returns: 1 if..., else 0
+# Returns: 0
 # Assumes: Nothing
-# Effects: Nothing
+# Effects: creates the map file
 # Throws: Nothing
 #
 def genMap():
+
+    #
+    # for each marker found in mgd...
+    #
 
     for line in fpMGIMap.readlines():
 
 	(markerKey, symbol, accid, chr, cM, bp) = line.strip().split(TAB)
 
-	# if marker is annotated to an mit marker
-	# then use the mit map
-        # if field 12 (status) == "good":
-        # then map position = field 15
+	# if marker is annotated to a mit marker
+	#     then use the mit map
 
 	if mitMap.has_key(int(markerKey)):
 	    newCm = mitMap[int(markerKey)][0]
 
 	# if there is no basepair,
-	# then set this map position to syntenic
+	#     then set this map position to syntenic
 
 	elif bp == 'None' or bp <= 0:
 	    newCm = '-1.0'
 
 	# if chromosome does not exist in snpMap
-	# then set this map position to syntenic
+	#     then set this map position to syntenic
 
 	elif not snpMap.has_key(chr):
 	    newCm = '-1.0'
@@ -564,10 +569,10 @@ def genMap():
     return 0
 
 #
-# Purpose:
-# Returns:
+# Purpose: Delete existing map positions/bcp in the new map positions
+# Returns: 0
 # Assumes: Nothing
-# Effects: BCPs the data into the database
+# Effects: Delete existing map positions/bcp in the new map positions
 # Throws: Nothing
 #
 def bcpFiles():
@@ -578,7 +583,7 @@ def bcpFiles():
 		% (passwordFile, db.get_sqlDatabase(), \
 	   	tableName, newMapFile, diagFile, db.get_sqlServer(), db.get_sqlUser(), diagFile)
 
-    print bcpMap
+    #print bcpMap
     os.system(bcpMap)
 
     return 0

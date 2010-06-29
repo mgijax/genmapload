@@ -1,0 +1,91 @@
+#format: sh
+###########################################################################
+#
+# Configuration.default
+#
+###########################################################################
+
+###########################################################################
+#
+#  If the MGICONFIG environment variable does not have a local override,
+#  use the default "live" settings.
+#
+###########################################################################
+if [ "${MGICONFIG}" = "" ]
+then
+    MGICONFIG=/usr/local/mgi/live/mgiconfig
+    export MGICONFIG
+fi
+
+. ${MGICONFIG}/master.config.sh
+
+###########################################################################
+#
+# Directory paths
+#
+###########################################################################
+
+INPUTDIR=/mgi/all/wts_projects/9300/9316/newmap
+
+FILEDIR=/data/loads/genmap/genmapload
+ARCHIVEDIR=${FILEDIR}/archive
+OUTPUTDIR=${FILEDIR}/output
+LOGDIR=${FILEDIR}/logs
+RPTDIR=${FILEDIR}/reports
+
+export INPUTDIR FILEDIR ARCHIVEDIR OUTPUTDIR LOGDIR RPTDIR
+
+###########################################################################
+#
+# Input/Output files
+#
+###########################################################################
+
+# SNP baseline
+#
+SNP_MAP_FILE=${INPUTDIR}/snpmap_rev.csv
+
+# MIT map
+#
+MIT_MAP_FILE=${INPUTDIR}/MitMarker.txt
+
+# MGI marker offsets/basepairs from the database
+#
+MGI_MAP_FILE=${OUTPUTDIR}/mgi_map.txt
+
+# New MGI marker offsets
+#
+NEW_MAP_FILE=${OUTPUTDIR}/MRK_Offset.txt
+
+# Log files
+#
+LOG_PROC=${LOGDIR}/genmapload.proc.log
+LOG_DIAG=${LOGDIR}/genmapload.diag.log
+LOG_CUR=${LOGDIR}/genmapload.cur.log
+LOG_VAL=${LOGDIR}/genmapload.val.log
+
+export SNP_MAP_FILE MIT_MAP_FILE MGI_MAP_FILE NEW_MAP_FILE
+export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
+
+#  The name of the job stream for the load
+JOBSTREAM=genmapload
+
+export JOBSTREAM
+
+###########################################################################
+#
+#  MISCELLANEOUS SETTINGS
+#
+###########################################################################
+
+#  The name of the load for the subject of an email notification
+MAIL_LOADNAME="Genetic Map Load"
+
+#  Recipient list for mailing the log files (comma-separated)
+MAIL_LOG_CUR="lec"
+
+export MAIL_LOADNAME MAIL_LOG_PROC MAIL_LOG_CUR
+
+#INSTALLDIR=${GENMAPLOAD}
+#export INSTALLDIR
+
