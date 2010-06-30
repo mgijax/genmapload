@@ -537,6 +537,9 @@ def genMap():
 
     for line in fpMGIMap.readlines():
 
+	# we can remove symbol, accid, cM
+	# there must have been put in for testing
+	# they are not used for anything, really
 	(markerKey, symbol, accid, chr, cM, bp) = line.strip().split(TAB)
 
 	# if marker is annotated to a mit marker
@@ -551,10 +554,16 @@ def genMap():
 	elif bp == 'None' or bp <= 0:
 	    newCm = '-1.0'
 
+	#
 	# if chromosome does not exist in snpMap
 	#     then set this map position to syntenic
+	# these are "MT", "XY", "Y"
+	# and could just be removed from makeMGIMapFile.py
+	# but some of the MT's have genome coordinates
+	#
 
 	elif not snpMap.has_key(chr):
+	    #print 'chromosome not found in snpMap:  ', symbol, chr
 	    newCm = '-1.0'
 
 	# for everything else, interpolate the map position
@@ -604,8 +613,8 @@ if genMap() != 0:
 
 closeFiles()
 
-if bcpFiles() != 0:
-    sys.exit(1)
+#if bcpFiles() != 0:
+#    sys.exit(1)
 
 sys.exit(0)
 

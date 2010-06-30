@@ -69,24 +69,24 @@ fi
 #  Source the DLA library functions.
 #
 
-#if [ "${DLAJOBSTREAMFUNC}" != "" ]
-#then
-#    if [ -r ${DLAJOBSTREAMFUNC} ]
-#    then
-#        . ${DLAJOBSTREAMFUNC}
-#    else
-#        echo "Cannot source DLA functions script: ${DLAJOBSTREAMFUNC}" | tee -a ${LOG}
-#        exit 1
-#    fi
-#else
-#    echo "Environment variable DLAJOBSTREAMFUNC has not been defined." | tee -a ${LOG}
-#    exit 1
-#fi
+if [ "${DLAJOBSTREAMFUNC}" != "" ]
+then
+    if [ -r ${DLAJOBSTREAMFUNC} ]
+    then
+        . ${DLAJOBSTREAMFUNC}
+    else
+        echo "Cannot source DLA functions script: ${DLAJOBSTREAMFUNC}" | tee -a ${LOG}
+        exit 1
+    fi
+else
+    echo "Environment variable DLAJOBSTREAMFUNC has not been defined." | tee -a ${LOG}
+    exit 1
+fi
 
 #
 # createArchive
 #
-#preload
+preload ${OUTPUTDIR}
 
 #
 # Establish the log file.
@@ -96,7 +96,7 @@ rm -rf ${LOG}
 touch ${LOG}
 
 #
-# Create the MGI association file.
+# Create the MGI map file.
 #
 echo "" >> ${LOG}
 date >> ${LOG}
@@ -106,7 +106,17 @@ STAT=$?
 checkStatus ${STAT} "makeMGIMapFile.sh (genmapload.sh)"
 
 #
+# Create/load the new map file.
+#
+echo "" >> ${LOG}
+date >> ${LOG}
+echo "Call makeGenMapFile.sh (genmapload.sh)" | tee -a ${LOG}
+./makeGenMapFile.sh 2>&1 >> ${LOG}
+STAT=$?
+checkStatus ${STAT} "makeGenMapFile.sh (genmapload.sh)"
+
+#
 # run postload cleanup and email logs
 #
-#shutDown
+shutDown
 exit 0
