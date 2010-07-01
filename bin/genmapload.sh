@@ -106,7 +106,7 @@ STAT=$?
 checkStatus ${STAT} "makeMGIMapFile.sh (genmapload.sh)"
 
 #
-# Create/load the new map file.
+# Create the new map file.
 #
 echo "" >> ${LOG}
 date >> ${LOG}
@@ -114,6 +114,16 @@ echo "Call makeGenMapFile.sh (genmapload.sh)" | tee -a ${LOG}
 ./makeGenMapFile.sh 2>&1 >> ${LOG}
 STAT=$?
 checkStatus ${STAT} "makeGenMapFile.sh (genmapload.sh)"
+
+#
+# Load the new map file.
+#
+echo "" >> ${LOG}
+date >> ${LOG}
+echo "Call loadGenMapFile.sh (genmapload.sh)" | tee -a ${LOG}
+./loadGenMapFile.sh 2>&1 >> ${LOG}
+STAT=$?
+checkStatus ${STAT} "loadGenMapFile.sh (genmapload.sh)"
 
 #
 # run postload cleanup and email logs
