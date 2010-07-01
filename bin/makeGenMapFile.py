@@ -22,8 +22,6 @@
 #	   MIT_MAP_FILE
 #          MGI_MAP_FILE
 #	   NEW_MAP_FILE
-#	   LOG_DIAG
-#	   MGD_DBPASSWORDFILE
 #
 #  Inputs:
 #
@@ -120,8 +118,7 @@
 #      2) Open files.
 #      3) Interpolate
 #      4) Create BCP files
-#      5) Load BCP files
-#      6) Close files.
+#      5) Close files.
 #
 #  Notes:  None
 #
@@ -147,13 +144,6 @@ mgiMapFile = None
 
 # file name NEW_MAP_FILE
 newMapFile = None
-
-# file name of diagnostic file (LOG_DIAG)
-diagFile = None
-
-# file name of user, password (for bcp)
-user = None
-passwordFile = None
 
 # file pointer
 fpSNPMap = None
@@ -183,26 +173,7 @@ toCoord = I_ACM
 cdate = mgi_utils.date('%m/%d/%Y')
 
 # offset table name
-tableName = 'MRK_Offset'
 mapSource = 0
-
-#
-# delete existing map positions
-# where offset is -1 (syntenic) or >0 (positive offset)
-# and marker status is official/inferred (1,3)
-# 
-# markers that are withdrawn (marker status = 2) 
-# or are UN/-999
-# are kept in source = 0 as "history"
-# that is, their offset values are not changed/refreshed
-#
-deleteSQL = '''delete MRK_Offset 
-	       from MRK_Offset o, MRK_Marker m
-	       where o.source = 0 
-	       and o.offset >= -1
-	       and o._Marker_key = m._Marker_key
-	       and m._Marker_Status_key in (1,3)
-	       '''
 
 # MRK_Offset insert format
 insertFormat = '%s\t' + str(mapSource) + '\t%s\t' + cdate + '\t' + cdate + '\n'
@@ -219,17 +190,12 @@ TAB = '\t'
 #
 def initialize():
     global snpMapFile, mitMapFile, mgiMapFile, newMapFile
-    global diagFile
-    global passwordFile
     global fpSNPMap, fpMITMap, fpMGIMap, fpNEWMap
 
     snpMapFile = os.getenv('SNP_MAP_FILE')
     mitMapFile = os.getenv('MIT_MAP_FILE')
     mgiMapFile = os.getenv('MGI_MAP_FILE')
     newMapFile = os.getenv('NEW_MAP_FILE')
-    diagFile = os.getenv('LOG_DIAG')
-    user = os.getenv('MGD_DBUSER')
-    passwordFile = os.getenv('MGD_DBPASSWORDFILE')
 
     rc = 0
 
@@ -252,14 +218,6 @@ def initialize():
         print 'Environment variable not set: NEW_MAP_FILE'
         rc = 1
 
-    if not diagFile:
-        print 'Environment variable not set: LOG_DIAG'
-        rc = 1
-
-    if not passwordFile:
-        print 'Environment variable not set: MGD_DBPASSWORDFILE'
-        rc = 1
-
     #
     # Initialize file pointers.
     #
@@ -268,12 +226,7 @@ def initialize():
     fpMGIMap = None
     fpNEWMap = None
 
-    #
-    # Use one connection to the database
-    #
     db.useOneConnection(1)
-    db.set_sqlUser(user)
-    db.set_sqlPasswordFromFile(passwordFile)
 
     return rc
 
@@ -578,26 +531,6 @@ def genMap():
     return 0
 
 #
-# Purpose: Delete existing map positions/bcp in the new map positions
-# Returns: 0
-# Assumes: Nothing
-# Effects: Delete existing map positions/bcp in the new map positions
-# Throws: Nothing
-#
-def bcpFiles():
-
-    db.sql(deleteSQL, None)
-
-    bcpMap = 'cat %s | bcp %s..%s in %s -c -t\"\t" -e %s -S%s -U%s > %s' \
-		% (passwordFile, db.get_sqlDatabase(), \
-	   	tableName, newMapFile, diagFile, db.get_sqlServer(), db.get_sqlUser(), diagFile)
-
-    #print bcpMap
-    os.system(bcpMap)
-
-    return 0
-
-#
 #  MAIN
 #
 
@@ -612,9 +545,6 @@ if genMap() != 0:
     sys.exit(1)
 
 closeFiles()
-
-#if bcpFiles() != 0:
-#    sys.exit(1)
 
 sys.exit(0)
 

@@ -34,17 +34,9 @@
 #
 #      1) Source the configuration file to establish the environment.
 #      2) Establish the log file.
-#      3) Call makeUniProtAssocFile.sh to make an association file
-#         from the UniProt input file.
-#      4) Call makeMGIMapFile.sh to make an association file from
-#         the database.
-#      5) Call makeBuckets.sh to bucketize the association files.
-#      6) Call makeBucketsDiff.sh to run diff of old/new buckets.
-#      7) Call loadBuckets.sh to load associations created by bucketizer.
-#      8) Call makeGOAnnot.sh to generate/load marker-to-GO annotations.
-#      9) Call makeInterProAnnot.sh to generate/load InterPro vocabulary
-#         and marker-to-interpro annotations.
-#      10) Call ${MGICACHELOAD}/inferredfrom.csh to refresh the inferred-from cache.
+#      3) Call makeMGIMapFile.sh to create the MGI map file.
+#      4) Call makeGenMapFile.sh to create the new genetic map file.
+#      5) Call loadGenMapFile.sh to load the genetic map file into the database.
 #
 #  Notes:  None
 #
