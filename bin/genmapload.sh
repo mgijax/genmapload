@@ -37,6 +37,7 @@
 #      3) Call makeMGIMapFile.sh to create the MGI map file.
 #      4) Call makeGenMapFile.sh to create the new genetic map file.
 #      5) Call loadGenMapFile.sh to load the genetic map file into the database.
+#      6) Call ${MRKCACHELOAD/mrklocation.csh to refresh the marker location cache.
 #
 #  Notes:  None
 #
@@ -116,6 +117,16 @@ echo "Call loadGenMapFile.sh (genmapload.sh)" | tee -a ${LOG}
 ./loadGenMapFile.sh 2>&1 >> ${LOG}
 STAT=$?
 checkStatus ${STAT} "loadGenMapFile.sh (genmapload.sh)"
+
+#
+# Refresh the Marker Location cache
+#
+echo "" >> ${LOG}
+date >> ${LOG}
+echo "Call ${MRKCACHELOAD/mrklocation.csh (genmapload.sh)" | tee -a ${LOG}
+${MRKCACHELOAD}/mrklocation.csh 2>&1 >> ${LOG}
+STAT=$?
+checkStatus ${STAT} "${MRKCACHELOAD/mrklocation.csh (genmapload.sh)"
 
 #
 # run postload cleanup and email logs
