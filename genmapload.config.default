@@ -47,7 +47,7 @@ SNP_MAP_FILE=${INPUTDIR}/snpmap.csv
 
 # MIT map
 #
-MIT_MAP_FILE=${INPUTDIR}/MitMarker.txt
+MIT_MAP_FILE=${INPUTDIR}/MIT-marker-data.txt
 
 # MGI marker offsets/basepairs from the database
 #
