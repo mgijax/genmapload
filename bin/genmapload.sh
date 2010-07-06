@@ -5,7 +5,7 @@
 #
 #  Purpose:
 #
-#      This script is a wrapper around the entire UniProt load process.
+#      This script is a wrapper around the entire Genetic Map load process.
 #
 #  Usage:
 #
@@ -126,7 +126,7 @@ date >> ${LOG}
 echo "Call ${MRKCACHELOAD/mrklocation.csh (genmapload.sh)" | tee -a ${LOG}
 ${MRKCACHELOAD}/mrklocation.csh 2>&1 >> ${LOG}
 STAT=$?
-checkStatus ${STAT} "${MRKCACHELOAD/mrklocation.csh (genmapload.sh)"
+checkStatus ${STAT} "mrklocation.csh (genmapload.sh)"
 
 #
 # run postload cleanup and email logs
