@@ -43,7 +43,7 @@ export INPUTDIR FILEDIR ARCHIVEDIR OUTPUTDIR LOGDIR RPTDIR
 
 # SNP baseline
 #
-SNP_MAP_FILE=${INPUTDIR}/snpmap_rev.csv
+SNP_MAP_FILE=${INPUTDIR}/snpmap.csv
 
 # MIT map
 #
