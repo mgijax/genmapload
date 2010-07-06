@@ -62,6 +62,17 @@ fi
 LOG=${LOG_DIAG}
 
 #
+# Verify that the number of rows in the MGI Map file
+# is equal to the number of rows in the new genetic map file
+#
+if [ `cat ${MGI_MAP_FILE} | wc -l` -ne `cat ${NEW_MAP_FILE} | wc -l` ]
+then
+    echo "\n**** ERROR ****" >> ${LOG}
+    echo "Counts are different:  ${MGI_MAP_FILE}, ${NEW_MAP_FILE}" >> ${LOG}
+    exit 1
+fi
+
+#
 # Call the Python script to create the MGI map file.
 #
 echo "" >> ${LOG}
