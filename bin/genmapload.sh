@@ -89,6 +89,12 @@ rm -rf ${LOG}
 touch ${LOG}
 
 #
+# Clean up the input file
+# 1) Remove any Ctrl-M characters (dos2unix)
+#
+dos2unix ${SNP_MAP_LOAD} ${SNP_MAP_LOAD} 2>/dev/null
+
+#
 # Create the MGI map file.
 #
 echo "" >> ${LOG}
