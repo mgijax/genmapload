@@ -155,7 +155,7 @@ def getMap():
 
     results = db.sql('''
            select distinct mc._Marker_key, mm.symbol, a.accid, mc.chromosome, 
-		  mc.offset, mc.startCoordinate
+		  offset = str(mc.offset), startCoordinate = str(mc.startCoordinate)
            from MRK_Location_Cache mc, MRK_Marker mm, ACC_Accession a
            where mc._Marker_key = mm._Marker_key
            and mm._Marker_Status_key in (1,3)

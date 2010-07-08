@@ -238,7 +238,7 @@ def initialize():
 # Throws: Nothing
 #
 def openFiles():
-    global fpSNPMap, fpMGIMap, fpNEWMap
+    global fpSNPMap, fpMITMap, fpMGIMap, fpNEWMap
     global snpMap, mitMap
 
     #
