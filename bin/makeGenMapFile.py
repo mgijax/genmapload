@@ -421,6 +421,7 @@ def bsearch(s, pos, fromCoord):
     imax = len(s) - 1
 
     # binary seach loop
+
     while imin <= imax:
 
 	# check the middle item
@@ -457,17 +458,20 @@ def convert(chr, pos, fromCoord = I_BP, toCoord = I_ACM):
     i = bsearch(s, pos, fromCoord)
 
     if i == len(s) - 1:
-	pos2 = (float(pos) * float(s[i][toCoord]))/float(s[i][fromCoord])
+	x = float(s[i][toCoord])
+	y = float(s[i][fromCoord])
+	pos = float(pos)
+	pos2 = float(pos * x)/y
 
         if toCoord == I_BP:
             pos2 = int(pos2)
     else:
 
-        from1 = float(s[i][fromCoord])
-        from2 = float(s[i+1][fromCoord])
+        from1 = s[i][fromCoord]
+        from2 = s[i+1][fromCoord]
         f = float(pos - from1)/(from2 - from1)
-        to1 = float(s[i][toCoord])
-        to2 = float(s[i+1][toCoord])
+        to1 = s[i][toCoord]
+        to2 = s[i+1][toCoord]
         pos2 = to1 + f*(to2-to1)
         if toCoord == I_BP:
             pos2 = int(pos2)
@@ -523,7 +527,7 @@ def genMap():
 
         else:
 	    # send convert the chromosome and the bp of the marker
-	    newCm = str(convert(chr, bp))
+	    newCm = str(convert(chr, float(bp)))
 
         #print string.join([markerKey, symbol, accid, chr, cM, bp, newCm], TAB)
         fpNEWMap.write(insertFormat % (markerKey, newCm))

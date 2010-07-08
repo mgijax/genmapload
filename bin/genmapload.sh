@@ -38,6 +38,7 @@
 #      4) Call makeGenMapFile.sh to create the new genetic map file.
 #      5) Call loadGenMapFile.sh to load the genetic map file into the database.
 #      6) Call ${MRKCACHELOAD/mrklocation.csh to refresh the marker location cache.
+#      7) Run ${QCRPTS}/genmapload/runQC.csh
 #
 #  Notes:  None
 #
@@ -127,6 +128,16 @@ echo "Call ${MRKCACHELOAD/mrklocation.csh (genmapload.sh)" | tee -a ${LOG}
 ${MRKCACHELOAD}/mrklocation.csh 2>&1 >> ${LOG}
 STAT=$?
 checkStatus ${STAT} "mrklocation.csh (genmapload.sh)"
+
+#
+# Run reports
+#
+echo "" >> ${LOG}
+date >> ${LOG}
+echo "Call ${QCRPTS}/genmapload/runQC.csh (genmapload.sh)" | tee -a ${LOG}
+${QCRPTS}/genmapload/runQC.csh 2>&1 >> ${LOG}
+STAT=$?
+checkStatus ${STAT} "runQC.csh (genmapload.sh)"
 
 #
 # run postload cleanup and email logs
