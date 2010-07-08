@@ -49,6 +49,10 @@ SNP_MAP_FILE=${INPUTDIR}/snpmap.csv
 #
 MIT_MAP_FILE=${INPUTDIR}/MIT-marker-data.txt
 
+# MIT diff file
+#
+MIT_DIFF_FILE=${OUTPUTDIR}/mit_diff.txt
+
 # MGI marker offsets/basepairs from the database
 #
 MGI_MAP_FILE=${OUTPUTDIR}/mgi_map.txt
@@ -64,7 +68,7 @@ LOG_DIAG=${LOGDIR}/genmapload.diag.log
 LOG_CUR=${LOGDIR}/genmapload.cur.log
 LOG_VAL=${LOGDIR}/genmapload.val.log
 
-export SNP_MAP_FILE MIT_MAP_FILE MGI_MAP_FILE NEW_MAP_FILE
+export SNP_MAP_FILE MIT_MAP_FILE MGI_MAP_FILE NEW_MAP_FILE MIT_DIFF_FILE
 export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
 
 #  The name of the job stream for the load
