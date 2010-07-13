@@ -25,7 +25,7 @@ fi
 #
 ###########################################################################
 
-INPUTDIR=/mgi/all/wts_projects/9300/9316/newmap
+INPUTDIR=/data/loads/genmap/genmapload/input
 
 FILEDIR=/data/loads/genmap/genmapload
 ARCHIVEDIR=${FILEDIR}/archive
