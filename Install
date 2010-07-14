@@ -66,6 +66,8 @@ ${DLAINSTALL} ${DEV}
 if [ ! -d ${INPUTDIR} ]
 then
     mkdir -p ${INPUTDIR}
+    ln -s /mgi/all/wts_projects/9300/9316/newmap/MIT-marker-data.txt ${INPUTDIR}
+    ln -s /mgi/all/wts_projects/9300/9316/newmap/snpmap.csv ${INPUTDIR}
 fi
 
 #
