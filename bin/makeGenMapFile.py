@@ -19,7 +19,6 @@
 #      file that is sourced by the wrapper script:
 #
 #	   SNP_MAP_FILE
-#	   MIT_MAP_FILE
 #          MGI_MAP_FILE
 #	   NEW_MAP_FILE
 #
@@ -51,37 +50,6 @@
 #               rs3683945,1,3187481,1.663,1.521,1.593
 #               rs3707673,1,3397474,1.769,1.521,1.648
 #               rs6269442,1,3482276,1.769,1.521,1.648
-#
-#      - MIT map file ($MIT_MAP_FILE)
-#
-#        1) Marker name 1
-#        2) Marker name 2
-#        3) Marker name 3
-#        4) MGI Marker Accession ID
-#        5) MGI Primer Pair ID ==> translate to marker
-#        6) Primer 1 sequence
-#        7) Primer 2 sequence
-#        8) build 37 chromosome
-#        9) build 37 bp start
-#        10) build 37 bp end
-#        11) how mapped
-#	 12) status ==> "good"
-#	 13) fem_cM
-#	 14) mal_cM
-#	 15) ave_cM ==> "good" map positions
-#	 16) MGI Chromosome
-#	 17) MGI cM
-#	 18) MGI Symbol
-#	 19) Chromosome assigned
-#	 20) fem_assigned_cM
-#	 21) mal_assigned_cM
-#	 22) sexave_assigned_cM ==> other map assignments
-#	 23) map position status
-#	 24) note
-#
-#        if field 12 (status) == "good":
-#	     position = field 15
-#        else ignore
 #
 #      - MGI map file ($MGI_MAP_FILE)
 #	 Current MGI map
@@ -136,9 +104,6 @@ import mgi_utils
 # file name SNP_MAP_FILE
 snpMapFile = None
 
-# file name MIT_MAP_FILE
-mitMapFile = None
-
 # file name MGI_MAP_FILE
 mgiMapFile = None
 
@@ -147,7 +112,6 @@ newMapFile = None
 
 # file pointer
 fpSNPMap = None
-fpMITMap = None
 fpMGIMap = None
 fpNEWMap = None
 
@@ -159,11 +123,6 @@ I_BP = 0	# basepair coordiante
 I_FCM = 1	# female map coordinate
 I_MCM = 2	# male map coordinate
 I_ACM = 3	# sex-averaged map coordinate
-
-# the mit map
-# key = marker key (field 4)
-# value = acM (field 15)
-mitMap = {}
 
 # interpolate bp->cM
 fromCoord = I_BP
@@ -189,11 +148,10 @@ TAB = '\t'
 # Throws: Nothing
 #
 def initialize():
-    global snpMapFile, mitMapFile, mgiMapFile, newMapFile
-    global fpSNPMap, fpMITMap, fpMGIMap, fpNEWMap
+    global snpMapFile, mgiMapFile, newMapFile
+    global fpSNPMap, fpMGIMap, fpNEWMap
 
     snpMapFile = os.getenv('SNP_MAP_FILE')
-    mitMapFile = os.getenv('MIT_MAP_FILE')
     mgiMapFile = os.getenv('MGI_MAP_FILE')
     newMapFile = os.getenv('NEW_MAP_FILE')
 
@@ -204,10 +162,6 @@ def initialize():
     #
     if not snpMapFile:
         print 'Environment variable not set: SNP_MAP_FILE'
-        rc = 1
-
-    if not mitMapFile:
-        print 'Environment variable not set: MIT_MAP_FILE'
         rc = 1
 
     if not mgiMapFile:
@@ -222,7 +176,6 @@ def initialize():
     # Initialize file pointers.
     #
     fpSNPMap = None
-    fpMITMap = None
     fpMGIMap = None
     fpNEWMap = None
 
@@ -238,8 +191,8 @@ def initialize():
 # Throws: Nothing
 #
 def openFiles():
-    global fpSNPMap, fpMITMap, fpMGIMap, fpNEWMap
-    global snpMap, mitMap
+    global fpSNPMap, fpMGIMap, fpNEWMap
+    global snpMap
 
     #
     # Open the map files
@@ -248,12 +201,6 @@ def openFiles():
         fpSNPMap = open(snpMapFile, 'r')
     except:
         print 'Cannot open map file: ' + snpMapFile
-        return 1
-
-    try:
-        fpMITMap = open(mitMapFile, 'r')
-    except:
-        print 'Cannot open map file: ' + mitMapFile
         return 1
 
     try:
@@ -292,85 +239,6 @@ def openFiles():
 	    snpMap[key] = []
 	snpMap[key].append(value)
 
-    #
-    # Create mitMap lookup
-    #
-
-    #
-    # create a mitMarker lookup
-    # read in all of the DMit markers in the database
-    # key = marker accession id
-    # value = marker key
-    #
-
-    results = db.sql('''
-	  select a.accID, m._Marker_key, m.symbol
-	  from MRK_Marker m, ACC_Accession a
-	  where m._Organism_key = 1
-	  and m._Marker_Status_key in (1,3)
-	  and m.symbol like 'd%mit%'
-	  and m._Marker_key = a._Object_key
-	  and a._MGIType_key = 2
-	  and a._LogicalDB_key = 1
-	  and a.prefixPart = "MGI:"
-	  ''', 'auto')
-
-    mitMarker = {}
-    for r in results:
-        key = r['accID']
-	value = r['_Marker_key']
-        if not mitMarker.has_key(key):
-            mitMarker[key] = []
-	#else:
-	#    print key, value
-        mitMarker[key].append(value)
-
-    #
-    # for each DMit marker in the input file
-    #   if status != "good", skip
-    #   if the marker can be found in the mitMarker lookup
-    #   then add the marker to the mitMap lookup
-    #
-
-    lineNum = 0
-    for line in fpMITMap.readlines():
-
-	lineNum = lineNum + 1
-
-	# skip header line
-	if lineNum == 1:
-	    continue
-	    
-        tokens = line.split(TAB)
-
-	markerID = tokens[3]
-	mitStatus = tokens[11]
-	acM = tokens[14]
-
-	# skip if status is not "good"
-
-	if mitStatus != "good":
-            #print 'status != good ', markerID, mitStatus
-	    continue
-
-	# duplicate markers should have the same acM
-	# so we just grap the first one we find
-
-	if mitMarker.has_key(markerID):
-	    for key in mitMarker[markerID]:
-	        value = acM
-		if value == "":
-	            #print 'acM is blank', markerID
-		    continue
-	        if not mitMap.has_key(key):
-	            mitMap[key] = []
-	            mitMap[key].append(value)
-	        #else:
-		#    print mitMarker[markerID], markerID, value
-		#    print mitMap[key]
-	#else:
-	#    print 'cannot find marker in MGD: ', markerID
-
     return 0
 
 #
@@ -381,13 +249,10 @@ def openFiles():
 # Throws: Nothing
 #
 def closeFiles():
-    global fpSNPMap, fpMITMap, fpMGIMap, fpNEWMap
+    global fpSNPMap, fpMGIMap, fpNEWMap
 
     if fpSNPMap:
         fpSNPMap.close()
-
-    if fpMITMap:
-        fpMITMap.close()
 
     if fpMGIMap:
         fpMGIMap.close()
@@ -499,16 +364,10 @@ def genMap():
 	# they are not used for anything, really
 	(markerKey, symbol, accid, chr, cM, bp) = line.strip().split(TAB)
 
-	# if marker is annotated to a mit marker
-	#     then use the mit map
-
-	if mitMap.has_key(int(markerKey)):
-	    newCm = mitMap[int(markerKey)][0]
-
 	# if there is no basepair,
 	#     then set this map position to syntenic
 
-	elif bp == 'None' or bp <= 0:
+	if bp == 'None' or bp <= 0:
 	    newCm = '-1.0'
 
 	#
