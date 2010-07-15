@@ -359,9 +359,9 @@ def genMap():
 
     for line in fpMGIMap.readlines():
 
-	# we can remove symbol, accid, cM
-	# there must have been put in for testing
-	# they are not used for anything, really
+	# not all of these fields are needed for the interpolation,
+	# but are handy for testing/debugging
+
 	(markerKey, symbol, accid, chr, cM, bp) = line.strip().split(TAB)
 
 	# if there is no basepair,
@@ -373,9 +373,9 @@ def genMap():
 	#
 	# if chromosome does not exist in snpMap
 	#     then set this map position to syntenic
+	#
 	# these are "MT", "XY", "Y"
-	# and could just be removed from makeMGIMapFile.py
-	# but some of the MT's have genome coordinates
+	# note that some of the MT's have genome coordinates
 	#
 
 	elif not snpMap.has_key(chr):
