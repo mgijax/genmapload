@@ -173,6 +173,17 @@ def initialize():
         rc = 1
 
     #
+    # copy new input file
+    #
+
+    try:
+        os.system('cp -r ${SNP_DOWNLOAD_FILE} ${INPUTDIR}')
+    except:
+        print 'Cannot copy the input file: ' + \
+              os.environ('SNP_DOWNLOAD_FILE') + ' to ' + os.environ('INPUT_DIR')
+        return 1
+
+    #
     # Initialize file pointers.
     #
     fpSNPMap = None

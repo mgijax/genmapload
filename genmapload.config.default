@@ -25,15 +25,14 @@ fi
 #
 ###########################################################################
 
-INPUTDIR=/data/loads/genmap/genmapload/input
-
 FILEDIR=/data/loads/genmap/genmapload
+INPUTDIR=${FILEDIR}/input
 ARCHIVEDIR=${FILEDIR}/archive
 OUTPUTDIR=${FILEDIR}/output
 LOGDIR=${FILEDIR}/logs
 RPTDIR=${FILEDIR}/reports
 
-export INPUTDIR FILEDIR ARCHIVEDIR OUTPUTDIR LOGDIR RPTDIR
+export FILEDIR INPUTDIR ARCHIVEDIR OUTPUTDIR LOGDIR RPTDIR
 
 ###########################################################################
 #
@@ -43,7 +42,8 @@ export INPUTDIR FILEDIR ARCHIVEDIR OUTPUTDIR LOGDIR RPTDIR
 
 # SNP baseline
 #
-SNP_MAP_FILE=${INPUTDIR}/snpmap.csv
+SNP_DOWNLOAD_FILE=/data/downloads/cgd.jax.org/mousemapconverter/Revised_HSmap_SNPs.csv
+SNP_MAP_FILE=${INPUTDIR}/Revised_HSmap_SNPs.csv
 
 # MIT map
 #
@@ -68,7 +68,7 @@ LOG_DIAG=${LOGDIR}/genmapload.diag.log
 LOG_CUR=${LOGDIR}/genmapload.cur.log
 LOG_VAL=${LOGDIR}/genmapload.val.log
 
-export SNP_MAP_FILE MIT_MAP_FILE MGI_MAP_FILE NEW_MAP_FILE MIT_DIFF_FILE
+export SNP_DOWNLOAD_FILE SNP_MAP_FILE MIT_MAP_FILE MGI_MAP_FILE NEW_MAP_FILE MIT_DIFF_FILE
 export LOG_PROC LOG_DIAG LOG_CUR LOG_VAL
 
 #  The name of the job stream for the load
