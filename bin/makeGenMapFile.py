@@ -135,7 +135,7 @@ cdate = mgi_utils.date('%m/%d/%Y')
 mapSource = 0
 
 # MRK_Offset insert format
-insertFormat = '%s\t' + str(mapSource) + '\t%s\t' + cdate + '\t' + cdate + '\n'
+insertFormat = '%s\t' + str(mapSource) + '\t%.2f\t' + cdate + '\t' + cdate + '\n'
 
 COMMA = ','
 TAB = '\t'
@@ -400,7 +400,7 @@ def genMap():
 	    newCm = str(convert(chr, float(bp)))
 
         #print string.join([markerKey, symbol, accid, chr, cM, bp, newCm], TAB)
-        fpNEWMap.write(insertFormat % (markerKey, newCm))
+        fpNEWMap.write(insertFormat % (markerKey, float(newCm)))
 
     return 0
 
