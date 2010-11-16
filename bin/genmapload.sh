@@ -124,7 +124,7 @@ checkStatus ${STAT} "loadGenMapFile.sh (genmapload.sh)"
 #
 echo "" >> ${LOG}
 date >> ${LOG}
-echo "Call ${MRKCACHELOAD/mrklocation.csh (genmapload.sh)" | tee -a ${LOG}
+echo "Call ${MRKCACHELOAD}/mrklocation.csh (genmapload.sh)" | tee -a ${LOG}
 ${MRKCACHELOAD}/mrklocation.csh 2>&1 >> ${LOG}
 STAT=$?
 checkStatus ${STAT} "mrklocation.csh (genmapload.sh)"
