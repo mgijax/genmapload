@@ -1,3 +1,9 @@
+TAG: genmapload-4-3-5-10
+DATE: 11/16/2010
+STAFF: lec
+CHANGES:
+1) fix bad substitution error in bin/genmapload.sh/echo
+
 TAG: genmapload-4-3-5-9
 TAG: genmapload-4-3-5-8
 TAG: genmapload-4-3-5-7
