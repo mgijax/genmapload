@@ -59,9 +59,7 @@
 #        2) Symbol
 #	 3) MGI ID
 #        4) Chromosome
-#        5) cM (centimorgan) 
-#           offset, current map position
-#        6) bp (basepair)
+#        5) bp (basepair)
 #           build 37 genome coordinate (start coordinate)
 #
 #  Outputs:
@@ -373,7 +371,7 @@ def genMap():
 	# not all of these fields are needed for the interpolation,
 	# but are handy for testing/debugging
 
-	(markerKey, symbol, accid, chr, cM, bp) = line.strip().split(TAB)
+	(markerKey, symbol, accid, chr, bp) = line.strip().split(TAB)
 
 	# if there is no basepair,
 	#     then set this map position to syntenic
@@ -399,7 +397,7 @@ def genMap():
 	    # send convert the chromosome and the bp of the marker
 	    newCm = str(convert(chr, float(bp)))
 
-        #print string.join([markerKey, symbol, accid, chr, cM, bp, newCm], TAB)
+        #print string.join([markerKey, symbol, accid, chr, bp, newCm], TAB)
         fpNEWMap.write(insertFormat % (markerKey, float(newCm)))
 
     return 0

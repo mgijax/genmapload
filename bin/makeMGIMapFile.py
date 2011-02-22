@@ -33,9 +33,7 @@
 #        2) Symbol
 #        3) MGI ID
 #        4) Chromosome
-#        5) cM (centimorgan) 
-#           offset, current map position
-#        6) bp (basepair)
+#        5) bp (basepair)
 #           build 37 genome coordinate (start coordinate)
 #
 #  Exit Codes:
@@ -72,6 +70,25 @@ mgiMapFile = None
 # file pointer
 fpMap = None
 
+# file name of user, password (for bcp)
+user = None
+passwordFile = None
+
+#
+# markers not "UN"
+# markers that are official/interim
+# should have offset = >= -1
+#
+updateSQL = '''update MRK_Offset 
+	       set offset = -1
+	       from MRK_Offset o, MRK_Marker m
+	       where o.source = 0 
+	       and o.offset < -1
+	       and o._Marker_key = m._Marker_key
+	       and m.chromosome not in ("UN")
+	       and m._Marker_Status_key in (1,3)
+	       '''
+
 #
 # Purpose: Initialization
 # Returns: 1 if file does not exist or is not readable, else 0
@@ -82,8 +99,12 @@ fpMap = None
 def initialize():
     global mgiMapFile
     global fpMap
+    global user
+    global passwordFile
 
     mgiMapFile = os.getenv('MGI_MAP_FILE')
+    user = os.getenv('MGD_DBUSER')
+    passwordFile = os.getenv('MGD_DBPASSWORDFILE')
 
     rc = 0
 
@@ -98,6 +119,12 @@ def initialize():
     # Initialize file pointers.
     #
     fpMap = None
+
+    #
+    # Use one connection to the database
+    #
+    db.set_sqlUser(user)
+    db.set_sqlPasswordFromFile(passwordFile)
 
     return rc
 
@@ -150,25 +177,93 @@ def closeFiles():
 def getMap():
 
     #
+    # set any official/interim offsets = -1
+    # if they are currently set to -999
+    #
+    db.sql(updateSQL, None)
+
+    #
     # Get all official/interim MGI markers
     #
 
-    results = db.sql('''
-           select distinct mc._Marker_key, mm.symbol, a.accid, mc.chromosome, 
-		  offset = str(mc.offset), startCoordinate = str(mc.startCoordinate)
-           from MRK_Location_Cache mc, MRK_Marker mm, ACC_Accession a
-           where mc._Marker_key = mm._Marker_key
-           and mm._Marker_Status_key in (1,3)
-	   and mm.chromosome not in ("UN")
-           and mc._Marker_key = a._Object_key
-           and a._MGIType_key = 2
-           and a._LogicalDB_key = 1
-           and a.preferred = 1
-	   and a.prefixPart = "MGI:"
-           order by mc.chromosome, mc.offset, mc.startCoordinate
-	   ''', 'auto')
+    db.sql('''select m._Marker_key, m.symbol, m.chromosome, a.accid
+	      into #markers
+	      from MRK_Marker m, ACC_Accession a
+	      where m._Organism_key = 1
+              and m._Marker_Status_key in (1,3)
+	      and m.chromosome not in ("UN")
+              and m._Marker_key = a._Object_key
+              and a._MGIType_key = 2
+              and a._LogicalDB_key = 1
+              and a.preferred = 1
+	      and a.prefixPart = "MGI:"
+	      ''', None)
+
+    db.sql('create index idx1 on #markers(_Marker_key)', None)
+
+    #
+    # Get coordinates
+    #
+
+    #
+    # copied from mrkcacheload/mrklocation.py
+    #
+    # the coordinate lookup should contain only one marker coordinate.
+    #
+    # see TR10207 for more information
+    #
+    # 1) add to the lookup all coordinates that do not contain a sequence
+    # 2) add to the lookup all coordinates that do contain a sequence,
+    #    but are not already in the lookup
+    #
+
+    coord = {}
+
+    #
+    # coordinates for Marker w/out Sequence coordinates
+    #
+
+    results = db.sql('''select distinct m._Marker_key, startCoordinate = str(f.startCoordinate)
+		from #markers m, MAP_Coord_Feature f
+		where m._Marker_key = f._Object_key 
+		and f._MGIType_key = 2 
+		''', 'auto')
+    for r in results:
+        key = r['_Marker_key']
+        value = r['startCoordinate']
+
+    if not coord.has_key(key):
+        coord[key] = []
+        coord[key].append(value)
+
+    #
+    # coordinates for Markers w/ Sequence coordinates
+    #
+
+    results = db.sql('''select distinct m._Marker_key, startCoordinate = str(c.startCoordinate)
+		from #markers m, SEQ_Marker_Cache mc, SEQ_Coord_Cache c
+		where m._Marker_key = mc._Marker_key 
+		and mc._Qualifier_key = 615419 
+		and mc._Sequence_key = c._Sequence_key
+		''', 'auto')
+    for r in results:
+        key = r['_Marker_key']
+        value = r['startCoordinate']
+
+        # only one coordinate per marker
+        if not coord.has_key(key):
+            coord[key] = []
+            coord[key].append(value)
+
+    #
+    # print out the marker/coordinate
+    #
+
+    results = db.sql('select * from #markers order by _Marker_key', 'auto')
 
     for r in results:
+
+	key = r['_Marker_key']
 
 	# change "X" to "20"
 
@@ -176,12 +271,19 @@ def getMap():
 	if chr == 'X':
 	    chr = '20'
 
-        fpMap.write(str(r['_Marker_key']) + '\t' +
-                    r['symbol'] + '\t' +
-                    r['accid'] + '\t' +
-                    chr + '\t' +
-		    str(r['offset']) + '\t' +
-		    str(r['startCoordinate']) + '\n')
+	if coord.has_key(key):
+	    for c in coord[key]:
+                fpMap.write(str(r['_Marker_key']) + '\t' +
+                            r['symbol'] + '\t' +
+                            r['accid'] + '\t' +
+                            chr + '\t' +
+		            str(c) + '\n')
+	else:
+            fpMap.write(str(r['_Marker_key']) + '\t' +
+                        r['symbol'] + '\t' +
+                        r['accid'] + '\t' +
+                        chr + '\t' +
+		        'None' + '\n')
 
     return 0
 
