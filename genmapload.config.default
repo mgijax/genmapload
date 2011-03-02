@@ -59,7 +59,7 @@ MGI_MAP_FILE=${OUTPUTDIR}/mgi_map.txt
 
 # New MGI marker offsets
 #
-NEW_MAP_FILE=${OUTPUTDIR}/MRK_Offset.txt
+NEW_MAP_FILE=${OUTPUTDIR}/MRK_Offset.bcp
 
 # Log files
 #

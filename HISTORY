@@ -1,8 +1,10 @@
+TAG: genmapload-4-4-1-2
 TAG: genmapload-4-4-1-1
-DATE: 02/27/2011
+DATE: 02/27/2011, 03/02/2011
 STAFF: lec
 CHANGES:
 1) TR10607/makeMGIMapFile.py
+2) changed MRK_Offset.txt to MRK_Offset.bcp for consistency
 
 TAG: genmapload-4-3-5-10
 DATE: 11/16/2010
