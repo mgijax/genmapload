@@ -44,6 +44,9 @@
 #
 #  Notes:  None
 #
+#  03/10/2011	lec
+#	- TR10622/ignore DNA (_Marker_Type_key = 2)
+#
 #  06/22/2010    lec
 #       - TR 9316/new genetic map
 #
@@ -73,6 +76,8 @@ passwordFile = None
 # are kept in source = 0 as "history"
 # that is, their offset values are not changed/refreshed
 #
+# ignore DNA segments
+#
 
 tableName = 'MRK_Offset'
 
@@ -82,6 +87,7 @@ deleteSQL = '''delete MRK_Offset
 	       and o.offset >= -1
 	       and o._Marker_key = m._Marker_key
 	       and m._Marker_Status_key in (1,3)
+	       and m._Marker_Type_key != 2
 	       '''
 
 #

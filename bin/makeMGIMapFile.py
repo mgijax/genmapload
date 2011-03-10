@@ -6,7 +6,7 @@
 #  Purpose:
 #
 #      This script will create an output file that contains all of the
-#      MGI markers with non-syntenic offsets (offset > 0) or genome coordinates.
+#      MGI markers with non-syntenic offsets (offset > 0) or genome hasOffsetinates.
 #
 #  Usage:
 #
@@ -34,7 +34,7 @@
 #        3) MGI ID
 #        4) Chromosome
 #        5) bp (basepair)
-#           build 37 genome coordinate (start coordinate)
+#           build 37 genome hasOffsetinate (start hasOffsetinate)
 #
 #  Exit Codes:
 #
@@ -54,6 +54,9 @@
 #      5) Close files.
 #
 #  Notes:  None
+#
+#  03/10/2011	lec
+#	- TR10622/ignore DNA (_Marker_Type_key = 2)
 #
 #  06/17/2010    lec
 #       - TR 9316/new genetic map
@@ -168,7 +171,7 @@ def closeFiles():
 
 #
 # Purpose: Query the database to get the MGI markers that have
-#          non-syntenic offsets (> 0) or basepair coordinates.
+#          non-syntenic offsets (> 0) or basepair hasOffsetinates.
 # Returns: 1 if file does not exist or is not readable, else 0
 # Assumes: Nothing
 # Effects: Nothing
@@ -184,6 +187,7 @@ def getMap():
 
     #
     # Get all official/interim MGI markers
+    # ignore DNA segments
     #
 
     db.sql('''select m._Marker_key, m.symbol, m.chromosome, a.accid
@@ -192,6 +196,7 @@ def getMap():
 	      where m._Organism_key = 1
               and m._Marker_Status_key in (1,3)
 	      and m.chromosome not in ("UN")
+	      and m._Marker_Type_key != 2
               and m._Marker_key = a._Object_key
               and a._MGIType_key = 2
               and a._LogicalDB_key = 1
@@ -202,25 +207,13 @@ def getMap():
     db.sql('create index idx1 on #markers(_Marker_key)', None)
 
     #
-    # Get coordinates
-    #
-
-    #
     # copied from mrkcacheload/mrklocation.py
     #
-    # the coordinate lookup should contain only one marker coordinate.
-    #
-    # see TR10207 for more information
-    #
-    # 1) add to the lookup all coordinates that do not contain a sequence
-    # 2) add to the lookup all coordinates that do contain a sequence,
-    #    but are not already in the lookup
-    #
 
-    coord = {}
+    hasOffset = {}
 
     #
-    # coordinates for Marker w/out Sequence coordinates
+    # offsets for Marker with MAP_Coord_Feature hasOffsetiantes
     #
 
     results = db.sql('''select distinct m._Marker_key, startCoordinate = str(f.startCoordinate)
@@ -232,12 +225,12 @@ def getMap():
         key = r['_Marker_key']
         value = r['startCoordinate']
 
-    if not coord.has_key(key):
-        coord[key] = []
-        coord[key].append(value)
+    if not hasOffset.has_key(key):
+        hasOffset[key] = []
+        hasOffset[key].append(value)
 
     #
-    # coordinates for Markers w/ Sequence coordinates
+    # offsets for Markers w/ Sequence hasOffsetinates
     #
 
     results = db.sql('''select distinct m._Marker_key, startCoordinate = str(c.startCoordinate)
@@ -250,13 +243,13 @@ def getMap():
         key = r['_Marker_key']
         value = r['startCoordinate']
 
-        # only one coordinate per marker
-        if not coord.has_key(key):
-            coord[key] = []
-            coord[key].append(value)
+        # only one hasOffsetinate per marker
+        if not hasOffset.has_key(key):
+            hasOffset[key] = []
+            hasOffset[key].append(value)
 
     #
-    # print out the marker/coordinate
+    # print out the marker/offsets
     #
 
     results = db.sql('select * from #markers order by _Marker_key', 'auto')
@@ -271,8 +264,8 @@ def getMap():
 	if chr == 'X':
 	    chr = '20'
 
-	if coord.has_key(key):
-	    for c in coord[key]:
+	if hasOffset.has_key(key):
+	    for c in hasOffset[key]:
                 fpMap.write(str(r['_Marker_key']) + '\t' +
                             r['symbol'] + '\t' +
                             r['accid'] + '\t' +
