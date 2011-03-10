@@ -213,7 +213,7 @@ def getMap():
     hasOffset = {}
 
     #
-    # offsets for Marker with MAP_Coord_Feature hasOffsetiantes
+    # offsets for Marker with MAP_Coord_Feature
     #
 
     results = db.sql('''select distinct m._Marker_key, startCoordinate = str(f.startCoordinate)
@@ -225,12 +225,12 @@ def getMap():
         key = r['_Marker_key']
         value = r['startCoordinate']
 
-    if not hasOffset.has_key(key):
-        hasOffset[key] = []
-        hasOffset[key].append(value)
+        if not hasOffset.has_key(key):
+            hasOffset[key] = []
+            hasOffset[key].append(value)
 
     #
-    # offsets for Markers w/ Sequence hasOffsetinates
+    # offsets for Markers w/ Sequence 
     #
 
     results = db.sql('''select distinct m._Marker_key, startCoordinate = str(c.startCoordinate)
