@@ -45,7 +45,7 @@
 #  Notes:  None
 #
 #  03/10/2011	lec
-#	- TR10622/ignore DNA (_Marker_Type_key = 2)
+#	- TR10622/ignore DNA-MIT markers (symbol like 'd%mit%')
 #
 #  06/22/2010    lec
 #       - TR 9316/new genetic map
@@ -87,7 +87,7 @@ deleteSQL = '''delete MRK_Offset
 	       and o.offset >= -1
 	       and o._Marker_key = m._Marker_key
 	       and m._Marker_Status_key in (1,3)
-	       and m._Marker_Type_key != 2
+	       and m.symbol not like 'd%mit%'
 	       '''
 
 #
