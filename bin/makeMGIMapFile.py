@@ -190,6 +190,8 @@ def getMap():
     # ignore DNA-MIT markers
     #
 
+    # note that this is the genetic chromosome we add to #markers
+
     db.sql('''select m._Marker_key, m.symbol, m.chromosome, a.accid
 	      into #markers
 	      from MRK_Marker m, ACC_Accession a
@@ -212,14 +214,22 @@ def getMap():
 
     hasOffset = {}
 
+    genomicChromosome = {}	# maps from marker key to genetic chromosome
+
     #
     # offsets for Marker with MAP_Coord_Feature
     #
 
-    results = db.sql('''select distinct m._Marker_key, startCoordinate = str(f.startCoordinate)
-		from #markers m, MAP_Coord_Feature f
+    results = db.sql('''select distinct m._Marker_key,
+			startCoordinate = str(f.startCoordinate),
+			c.chromosome
+		from #markers m, MAP_Coord_Feature f, MAP_Coordinate mc,
+			MRK_Chromosome c
 		where m._Marker_key = f._Object_key 
 		and f._MGIType_key = 2 
+		and f._Map_key = mc._Map_key
+		and mc._Object_key = c._Chromosome_key
+		and mc._MGIType_key = 27	-- chromosome
 		''', 'auto')
     for r in results:
         key = r['_Marker_key']
@@ -228,12 +238,15 @@ def getMap():
         if not hasOffset.has_key(key):
             hasOffset[key] = []
             hasOffset[key].append(value)
+	    genomicChromosome[key] = r['chromosome']
 
     #
     # offsets for Markers w/ Sequence 
     #
 
-    results = db.sql('''select distinct m._Marker_key, startCoordinate = str(c.startCoordinate)
+    results = db.sql('''select distinct m._Marker_key,
+			startCoordinate = str(c.startCoordinate),
+			c.chromosome
 		from #markers m, SEQ_Marker_Cache mc, SEQ_Coord_Cache c
 		where m._Marker_key = mc._Marker_key 
 		and mc._Qualifier_key = 615419 
@@ -247,6 +260,7 @@ def getMap():
         if not hasOffset.has_key(key):
             hasOffset[key] = []
             hasOffset[key].append(value)
+	    genomicChromosome[key] = r['chromosome']
 
     #
     # print out the marker/offsets
@@ -261,10 +275,19 @@ def getMap():
 	# change "X" to "20"
 
 	chr = r['chromosome']
+
+	# if genetic and genomic chromosomes disagree, then we do not want to
+	# generate a cM offset
+
+	chromosomeMismatch = False
+	if genomicChromosome.has_key(key):
+	    if genomicChromosome[key] != chr:
+		chromosomeMismatch = True
+
 	if chr == 'X':
 	    chr = '20'
 
-	if hasOffset.has_key(key):
+	if hasOffset.has_key(key) and not chromosomeMismatch:
 	    for c in hasOffset[key]:
                 fpMap.write(str(r['_Marker_key']) + '\t' +
                             r['symbol'] + '\t' +
