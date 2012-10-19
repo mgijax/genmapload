@@ -25,7 +25,7 @@ fi
 #
 ###########################################################################
 
-FILEDIR=/data/loads/genmap/genmapload
+FILEDIR=${DATALOADSOUTPUT}/genmap/genmapload
 INPUTDIR=${FILEDIR}/input
 ARCHIVEDIR=${FILEDIR}/archive
 OUTPUTDIR=${FILEDIR}/output
