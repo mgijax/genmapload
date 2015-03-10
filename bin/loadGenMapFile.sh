@@ -67,7 +67,8 @@ LOG=${LOG_DIAG}
 #
 if [ `cat ${MGI_MAP_FILE} | wc -l` -ne `cat ${NEW_MAP_FILE} | wc -l` ]
 then
-    echo "\n**** ERROR ****" >> ${LOG}
+    echo "" >> ${LOG}
+    echo "**** ERROR ****" >> ${LOG}
     echo "Counts are different:  ${MGI_MAP_FILE}, ${NEW_MAP_FILE}" >> ${LOG}
     exit 1
 fi
