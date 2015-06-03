@@ -66,6 +66,8 @@ diagFile = None
 user = None
 passwordFile = None
 
+BCP_COMMAND = os.environ['PG_DBUTILS'] + '/bin/bcpin.csh'
+
 #
 # delete existing map positions
 # where offset is -1 (syntenic) or >0 (positive offset)
@@ -81,13 +83,13 @@ passwordFile = None
 
 tableName = 'MRK_Offset'
 
-deleteSQL = '''delete MRK_Offset 
-	       from MRK_Offset o, MRK_Marker m
+deleteSQL = '''delete MRK_Offset o
+	       using MRK_Marker m
 	       where o.source = 0 
 	       and o.offset >= -1
 	       and o._Marker_key = m._Marker_key
 	       and m._Marker_Status_key in (1,3)
-	       and m.symbol not like 'd%mit%'
+	       and lower(m.symbol) not like 'd%mit%'
 	       '''
 
 #
@@ -143,10 +145,10 @@ def initialize():
 def bcpFiles():
 
     db.sql(deleteSQL, None)
+    db.commit()
 
-    bcpMap = 'cat %s | bcp %s..%s in %s -c -t\"\t" -e %s -S%s -U%s > %s' \
-		% (passwordFile, db.get_sqlDatabase(), \
-	   	tableName, newMapFile, diagFile, db.get_sqlServer(), db.get_sqlUser(), diagFile)
+    bcpCmd = '%s %s %s %s "/" %s "\\t" "\\n" mgd' % \
+        (BCP_COMMAND, db.get_sqlServer(), db.get_sqlDatabase(),tableName, newMapFile)
 
     #print bcpMap
     os.system(bcpMap)
