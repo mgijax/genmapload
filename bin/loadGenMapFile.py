@@ -86,7 +86,7 @@ tableName = 'MRK_Offset'
 deleteSQL = '''delete from MRK_Offset o
 	       using MRK_Marker m
 	       where o.source = 0 
-	       and o.offset >= -1
+	       and o.cmoffset >= -1
 	       and o._Marker_key = m._Marker_key
 	       and m._Marker_Status_key in (1,3)
 	       and lower(m.symbol) not like 'd%mit%'
