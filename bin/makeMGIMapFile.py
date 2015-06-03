@@ -184,6 +184,7 @@ def getMap():
     # if they are currently set to -999
     #
     db.sql(updateSQL, None)
+    db.commit()
 
     #
     # Get all official/interim MGI markers
