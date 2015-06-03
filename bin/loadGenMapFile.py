@@ -83,7 +83,7 @@ BCP_COMMAND = os.environ['PG_DBUTILS'] + '/bin/bcpin.csh'
 
 tableName = 'MRK_Offset'
 
-deleteSQL = '''delete MRK_Offset o
+deleteSQL = '''delete from MRK_Offset o
 	       using MRK_Marker m
 	       where o.source = 0 
 	       and o.offset >= -1
@@ -150,8 +150,7 @@ def bcpFiles():
     bcpCmd = '%s %s %s %s "/" %s "\\t" "\\n" mgd' % \
         (BCP_COMMAND, db.get_sqlServer(), db.get_sqlDatabase(),tableName, newMapFile)
 
-    #print bcpMap
-    os.system(bcpMap)
+    os.system(bcpCmd)
 
     return 0
 
