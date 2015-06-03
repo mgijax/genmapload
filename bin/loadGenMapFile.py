@@ -132,6 +132,7 @@ def initialize():
     #
     db.set_sqlUser(user)
     db.set_sqlPasswordFromFile(passwordFile)
+    db.useOneConnection(1)
 
     return rc
 
@@ -164,5 +165,6 @@ if initialize() != 0:
 if bcpFiles() != 0:
     sys.exit(1)
 
+db.useOneConnection(0)
 sys.exit(0)
 
