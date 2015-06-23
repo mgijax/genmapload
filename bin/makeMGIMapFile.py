@@ -106,8 +106,8 @@ def initialize():
     global passwordFile
 
     mgiMapFile = os.getenv('MGI_MAP_FILE')
-    user = os.getenv('PG_DBUSER')
-    passwordFile = os.getenv('PG_1LINE_PASSFILE')
+    user = os.getenv('MGD_DBUSER')
+    passwordFile = os.getenv('MGD_DBPASSWORDFILE')
 
     rc = 0
 
