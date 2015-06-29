@@ -82,13 +82,13 @@ passwordFile = None
 # markers that are official/interim
 # should have offset = >= -1
 #
-updateSQL = '''update MRK_Offset 
-	       set offset = -1
-	       from MRK_Offset o, MRK_Marker m
+updateSQL = '''update MRK_Offset o
+	       set cmoffset = -1
+	       from MRK_Marker m
 	       where o.source = 0 
-	       and o.offset < -1
+	       and o.cmoffset < -1
 	       and o._Marker_key = m._Marker_key
-	       and m.chromosome not in ("UN")
+	       and m.chromosome not in ('UN')
 	       and m._Marker_Status_key in (1,3)
 	       '''
 
@@ -128,6 +128,7 @@ def initialize():
     #
     db.set_sqlUser(user)
     db.set_sqlPasswordFromFile(passwordFile)
+    db.useOneConnection(1)
 
     return rc
 
@@ -184,6 +185,7 @@ def getMap():
     # if they are currently set to -999
     #
     db.sql(updateSQL, None)
+    db.commit()
 
     #
     # Get all official/interim MGI markers
@@ -193,20 +195,20 @@ def getMap():
     # note that this is the genetic chromosome we add to #markers
 
     db.sql('''select m._Marker_key, m.symbol, m.chromosome, a.accid
-	      into #markers
+	      into temp markers
 	      from MRK_Marker m, ACC_Accession a
 	      where m._Organism_key = 1
               and m._Marker_Status_key in (1,3)
-	      and m.chromosome not in ("UN")
-	      and m.symbol not like 'd%mit%'
+	      and m.chromosome not in ('UN')
+	      and lower(m.symbol) not like 'd%mit%'
               and m._Marker_key = a._Object_key
               and a._MGIType_key = 2
               and a._LogicalDB_key = 1
               and a.preferred = 1
-	      and a.prefixPart = "MGI:"
+	      and a.prefixPart = 'MGI:'
 	      ''', None)
 
-    db.sql('create index idx1 on #markers(_Marker_key)', None)
+    db.sql('create index markers_idx1 on markers(_Marker_key)', None)
 
     #
     # copied from mrkcacheload/mrklocation.py
@@ -221,9 +223,9 @@ def getMap():
     #
 
     results = db.sql('''select distinct m._Marker_key,
-			startCoordinate = str(f.startCoordinate),
+			f.startCoordinate,
 			c.chromosome
-		from #markers m, MAP_Coord_Feature f, MAP_Coordinate mc,
+		from markers m, MAP_Coord_Feature f, MAP_Coordinate mc,
 			MRK_Chromosome c
 		where m._Marker_key = f._Object_key 
 		and f._MGIType_key = 2 
@@ -245,9 +247,9 @@ def getMap():
     #
 
     results = db.sql('''select distinct m._Marker_key,
-			startCoordinate = str(c.startCoordinate),
+			c.startCoordinate,
 			c.chromosome
-		from #markers m, SEQ_Marker_Cache mc, SEQ_Coord_Cache c
+		from markers m, SEQ_Marker_Cache mc, SEQ_Coord_Cache c
 		where m._Marker_key = mc._Marker_key 
 		and mc._Qualifier_key = 615419 
 		and mc._Sequence_key = c._Sequence_key
@@ -266,7 +268,7 @@ def getMap():
     # print out the marker/offsets
     #
 
-    results = db.sql('select * from #markers order by _Marker_key', 'auto')
+    results = db.sql('select * from markers order by _Marker_key', 'auto')
 
     for r in results:
 
@@ -320,4 +322,5 @@ if getMap() != 0:
     sys.exit(1)
 
 closeFiles()
+db.useOneConnection(0)
 sys.exit(0)
