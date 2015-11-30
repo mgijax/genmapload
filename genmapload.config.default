@@ -85,10 +85,7 @@ export JOBSTREAM
 #  The name of the load for the subject of an email notification
 MAIL_LOADNAME="Genetic Map Load"
 
-#  Recipient list for mailing the log files (comma-separated)
-MAIL_LOG_CUR="mgiadmin"
-
-export MAIL_LOADNAME MAIL_LOG_PROC MAIL_LOG_CUR
+export MAIL_LOADNAME
 
 INSTALLDIR=${GENMAPLOAD}
 export INSTALLDIR
