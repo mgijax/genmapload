@@ -67,6 +67,9 @@ import sys
 import os
 import db
 
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
+
 # file name MGI_MAP_FILE
 mgiMapFile = None
 

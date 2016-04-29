@@ -99,6 +99,9 @@ import string
 import db
 import mgi_utils
 
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
+
 # file name SNP_MAP_FILE
 snpMapFile = None
 
