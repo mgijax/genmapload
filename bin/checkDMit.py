@@ -185,7 +185,7 @@ def processReport():
 	  from MRK_Location_Cache c, MRK_Marker m, ACC_Accession a
 	  where c._Marker_key = m._Marker_key
 	  and m._Organism_key = 1
-	  and m._Marker_Status_key in (1,3)
+	  and m._Marker_Status_key = 1
 	  and lower(m.symbol) like 'd%mit%'
           and m._Marker_key = a._Object_key
           and a._MGIType_key = 2
