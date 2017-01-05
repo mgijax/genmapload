@@ -60,9 +60,6 @@ import sys
 import os
 import db
 
-db.setAutoTranslate(False)
-db.setAutoTranslateBE(False)
-
 # file name MIT_MAP_FILE
 mitMapFile = None
 
