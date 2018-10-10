@@ -7,7 +7,7 @@
 #
 #      This script will interpolate the SNP/baseline map and the current
 #      MGI marker genome coordinates to current map offsets/cM positions
-#      (MRK_Offset.offset where source = 0).
+#      (MRK_Marker.cmOffset)
 #
 #  Usage:
 #
@@ -20,7 +20,6 @@
 #
 #	   SNP_MAP_FILE
 #          MGI_MAP_FILE
-#	   NEW_MAP_FILE
 #
 #  Inputs:
 #
@@ -99,19 +98,17 @@ import string
 import db
 import mgi_utils
 
+db.setTrace = true
+
 # file name SNP_MAP_FILE
 snpMapFile = None
 
 # file name MGI_MAP_FILE
 mgiMapFile = None
 
-# file name NEW_MAP_FILE
-newMapFile = None
-
 # file pointer
 fpSNPMap = None
 fpMGIMap = None
-fpNEWMap = None
 
 # the snp map
 # key = chromosome
@@ -126,15 +123,6 @@ I_ACM = 3	# sex-averaged map coordinate
 fromCoord = I_BP
 toCoord = I_ACM
 
-# current date
-cdate = mgi_utils.date('%m/%d/%Y')
-
-# offset table name
-mapSource = 0
-
-# MRK_Offset insert format
-insertFormat = '%s\t' + str(mapSource) + '\t%.2f\t' + cdate + '\t' + cdate + '\n'
-
 COMMA = ','
 TAB = '\t'
 
@@ -146,12 +134,11 @@ TAB = '\t'
 # Throws: Nothing
 #
 def initialize():
-    global snpMapFile, mgiMapFile, newMapFile
-    global fpSNPMap, fpMGIMap, fpNEWMap
+    global snpMapFile, mgiMapFile
+    global fpSNPMap, fpMGIMap
 
     snpMapFile = os.getenv('SNP_MAP_FILE')
     mgiMapFile = os.getenv('MGI_MAP_FILE')
-    newMapFile = os.getenv('NEW_MAP_FILE')
 
     rc = 0
 
@@ -164,10 +151,6 @@ def initialize():
 
     if not mgiMapFile:
         print 'Environment variable not set: MGI_MAP_FILE'
-        rc = 1
-
-    if not newMapFile:
-        print 'Environment variable not set: NEW_MAP_FILE'
         rc = 1
 
     #
@@ -186,7 +169,6 @@ def initialize():
     #
     fpSNPMap = None
     fpMGIMap = None
-    fpNEWMap = None
 
     db.useOneConnection(1)
 
@@ -200,7 +182,7 @@ def initialize():
 # Throws: Nothing
 #
 def openFiles():
-    global fpSNPMap, fpMGIMap, fpNEWMap
+    global fpSNPMap, fpMGIMap
     global snpMap
 
     #
@@ -216,12 +198,6 @@ def openFiles():
         fpMGIMap = open(mgiMapFile, 'r')
     except:
         print 'Cannot open map file: ' + mgiMapFile
-        return 1
-
-    try:
-        fpNEWMap = open(newMapFile, 'w')
-    except:
-        print 'Cannot open map file: ' + newMapFile
         return 1
 
     #
@@ -258,16 +234,13 @@ def openFiles():
 # Throws: Nothing
 #
 def closeFiles():
-    global fpSNPMap, fpMGIMap, fpNEWMap
+    global fpSNPMap, fpMGIMap
 
     if fpSNPMap:
         fpSNPMap.close()
 
     if fpMGIMap:
         fpMGIMap.close()
-
-    if fpNEWMap:
-        fpNEWMap.close()
 
     db.useOneConnection(0)
 
@@ -398,7 +371,9 @@ def genMap():
 	    newCm = str(convert(chr, float(bp)))
 
         #print string.join([markerKey, symbol, accid, chr, bp, newCm], TAB)
-        fpNEWMap.write(insertFormat % (markerKey, float(newCm)))
+	mapSQL = "update MRK_Marker set cmOffset = '%s' where _Marker_key = %s" % (float(newCm), markerKey)
+	db.sql(mapSQL, None);
+	db.commit()
 
     return 0
 

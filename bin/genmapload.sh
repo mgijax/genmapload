@@ -35,10 +35,9 @@
 #      1) Source the configuration file to establish the environment.
 #      2) Establish the log file.
 #      3) Call makeMGIMapFile.sh to create the MGI map file.
-#      4) Call makeGenMapFile.sh to create the new genetic map file.
-#      5) Call loadGenMapFile.sh to load the genetic map file into the database.
-#      6) Call ${MRKCACHELOAD/mrklocation.csh to refresh the marker location cache.
-#      7) Run ${QCRPTS}/genmapload/runQC.csh
+#      4) Call makeGenMapFile.sh to create/run SQL to update MRK_Marker.cmOffset
+#      5) Call ${MRKCACHELOAD/mrklocation.csh to refresh the marker location cache.
+#      6) Run ${QCRPTS}/genmapload/runQC.csh
 #
 #  Notes:  None
 #
@@ -100,7 +99,7 @@ STAT=$?
 checkStatus ${STAT} "makeMGIMapFile.sh (genmapload.sh)"
 
 #
-# Create the new map file.
+# Create the new map sql file and run
 #
 echo "" >> ${LOG}
 date >> ${LOG}
@@ -108,16 +107,6 @@ echo "Call makeGenMapFile.sh (genmapload.sh)" | tee -a ${LOG}
 ./makeGenMapFile.sh 2>&1 >> ${LOG}
 STAT=$?
 checkStatus ${STAT} "makeGenMapFile.sh (genmapload.sh)"
-
-#
-# Load the new map file.
-#
-echo "" >> ${LOG}
-date >> ${LOG}
-echo "Call loadGenMapFile.sh (genmapload.sh)" | tee -a ${LOG}
-./loadGenMapFile.sh 2>&1 >> ${LOG}
-STAT=$?
-checkStatus ${STAT} "loadGenMapFile.sh (genmapload.sh)"
 
 #
 # Refresh the Marker Location cache
