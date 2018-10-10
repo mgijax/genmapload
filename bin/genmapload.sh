@@ -119,16 +119,6 @@ STAT=$?
 checkStatus ${STAT} "mrklocation.csh (genmapload.sh)"
 
 #
-# Run reports
-#
-echo "" >> ${LOG}
-date >> ${LOG}
-echo "Call ${QCRPTS}/genmapload/runQC.csh (genmapload.sh)" | tee -a ${LOG}
-${QCRPTS}/genmapload/runQC.csh 2>&1 >> ${LOG}
-STAT=$?
-checkStatus ${STAT} "runQC.csh (genmapload.sh)"
-
-#
 # run postload cleanup and email logs
 #
 shutDown
